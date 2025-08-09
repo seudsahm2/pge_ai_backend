@@ -1,0 +1,81 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*$py.class
+
+# Environments
+.env
+.env.*
+venv/
+ENV/
+.env.bak
+.env.local
+
+# Django specific
+media/
+staticfiles/
+*.log
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Byte-compiled / optimized / DLL files
+.build/
+.eggs/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Coverage / Testing
+htmlcov/
+.coverage*
+.tox/
+.nox/
+.pytest_cache/
+coverage.xml
+
+# Node / Frontend (future Next.js app directory)
+node_modules/
+.next/
+.next-cache/
+yarn.lock
+pnpm-lock.yaml
+package-lock.json
+
+# Mac / Windows
+.DS_Store
+Thumbs.db
+
+# Migrations cache (keep actual migration files)
+# Uncomment next line if you ever need to ignore compiled migrations
+# */migrations/*.py[cod]
+
+# Uploads
+uploads/
+
+# Unstructured temporary processing (if you create one)
+/tmp_unstructured/
+
+# VS Code history
+.history/
+
+# PyInstaller
+*.spec
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Backup files
+*~
+*.bak
+
+# Security (never commit real secrets; .env is already ignored)
+secrets.json
