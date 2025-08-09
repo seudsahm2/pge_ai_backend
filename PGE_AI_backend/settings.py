@@ -22,6 +22,15 @@ except ImportError:
 if load_dotenv:
     load_dotenv()
 
+# Helper to fetch required environment variables clearly
+from django.core.exceptions import ImproperlyConfigured
+
+def get_env(name: str, default=None, required: bool = False):
+    val = os.getenv(name, default)
+    if required and (val is None or str(val).strip() == ""):
+        raise ImproperlyConfigured(f"Environment variable '{name}' is required but not set.")
+    return val
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -30,7 +39,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-insecure-change-me')
+SECRET_KEY = get_env('DJANGO_SECRET_KEY', 'dev-insecure-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() == 'true'
@@ -95,13 +104,19 @@ WSGI_APPLICATION = 'PGE_AI_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'pge_ai_db'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+        'NAME': get_env('DB_NAME', 'pge_ai_db'),
+        'USER': get_env('DB_USER', 'postgres'),
+    # Require a password explicitly to avoid silent empty connection attempts
+    'PASSWORD': get_env('DB_PASSWORD', required=True),
+        'HOST': get_env('DB_HOST', 'localhost'),
+        'PORT': get_env('DB_PORT', '5432'),
     }
 }
+
+print("[DEBUG DB SETTINGS] host=", DATABASES['default']['HOST'], 
+    "port=", DATABASES['default']['PORT'], 
+    "user=", DATABASES['default']['USER'], 
+    "password_set=", bool(DATABASES['default']['PASSWORD']))
 
 
 # Password validation
@@ -151,11 +166,26 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 REST_FRAMEWORK = {
-
     'DEFAULT_AUTHENTICATION_CLASSES': (
-
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-
-    )
-
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
+
+# Simple JWT custom (can tweak later)
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.getenv('JWT_ACCESS_MINUTES', '30'))),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=int(os.getenv('JWT_REFRESH_DAYS', '7'))),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
+# Media (uploaded documents)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Static (placeholder – will optimize later)
+STATIC_URL = 'static/'
